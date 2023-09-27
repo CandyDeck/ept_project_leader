@@ -1,4 +1,11 @@
-## Download the list of Project from unit4
+# Description
+This serie of scripts has been written to help the administration to handle repetitive tasks.
+The main objective was to get, for each project leader at EPT, NTNU, a private folder containing information such as :
+- A list of employees
+- A list of projects
+- Budget for all projects (internally and externally founded)
+
+## 1. Download the list of Project from unit4
 
 The user of the script should be aware that his username and password should replace the *** :
 
