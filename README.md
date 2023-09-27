@@ -1,232 +1,113 @@
-# EPT_admin
+## Download the list of Project from unit4
 
-
-
-## Description
-This serie of script have been written to takle an administrative problem and automatically do repetitive tasks.
-This project can be cut into different parts.
-
-### 1. Download the list of project from Unit4
-[This first script](https://gitlab.com/CandyDeck/ept_admin/-/blob/main/EPT_download_unit4/1_download_list_project_final.py?ref_type=heads) download the complete list of project from [NTNU's](https://www.ntnu.edu/) [Unit4](https://www.unit4.com/), which is a management tool for compagnies.
-Webscrapping is used to fetch the table. In **download_list_project_final.py** we import [selenium](https://selenium-python.readthedocs.io/index.html) to help us navigating trhough Unit4.
+The user of the script should be aware that his username and password should replace the *** :
 
 ```python
-from selenium import webdriver 
-
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver import ActionChains
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-```
-
-In order to store what we are interested in, we create a folder whose name is the date of today : 
-```python
-today = datetime.now()
-isExist = os.path.exists(str(today.strftime('%Y%m%d')))
-if not isExist:
-   # Create a new directory because it does not exist
-   os.mkdir(today.strftime('%Y%m%d'))
-   print("The new directory is created!")
-else:
-    print('exist already')
-```
-We define in the script the **download directory** which is the directory we just created with today's date : 
-```python
-profile.set_preference("browser.download.dir", os.getcwd() + "\\" + str(today.strftime('%Y%m%d')) + "\\"  )
-```
-
-
-```python
-profile = webdriver.FirefoxProfile()
-profile.set_preference("browser.download.folderList", 2)
-profile.set_preference("browser.download.manager.showWhenStarting", False)
-profile.set_preference("browser.download.dir", os.getcwd() + "\\" + str(today.strftime('%Y%m%d')) + "\\"  )
-profile.set_preference("browser.helperApps.neverAsk.saveToDisk", "application/x-gzip")
-driver = webdriver.Firefox(firefox_profile=profile)
-
-driver.get('https://login.dfo.no/mga/sps/authsvc?PolicyId=urn:ibm:security:authentication:asf:dfolandingpage')
-driver.implicitly_wait(10) # wait until page will be loaded
-
-ddelement= driver.find_element(By.ID, "select-identityProvider").click()
-feide = driver.find_element(By.XPATH,  "//*[text()='Feide']").click()
-time.sleep(2)
-button = driver.find_element(By.XPATH,'/html/body/div/div/section/div/div/div/form/fieldset[2]/button')
-time.sleep(2)
-button.click()
-affiliation = driver.find_element(By.ID,"org_selector_filter")
-affiliation.send_keys("ntnu")
-ntnu = driver.find_element(By.XPATH,'/html/body/div/article/section[2]/div[1]/form/div[1]/ul/li[20]/div').click()
-button2 = driver.find_element(By.ID, "selectorg_button")
-button2.click()
-
-
-
 username=driver.find_element(By.ID,"username")
 password = driver.find_element(By.ID,"password")
 username.send_keys("***")
 password.send_keys("***")
-button3 = driver.find_element(By.XPATH,'/html/body/div/article/section[2]/div[1]/form[1]/button')
-button3.click()
+```
 
-window_before = driver.window_handles[0]
+The user should also be aware that the right kostnadsted should be written in full, as a successsion of 8 digit or, it is also possible to enter the 4 first digit and complete the search with *:
 
-unit4 = driver.find_element(By.XPATH,'/html/body/div/div/div/section/div/div/div/div/div/div/ul/li[2]/a')
-unit4.click()
-time.sleep(10)
-window_after = driver.window_handles[1]
-driver.switch_to.window(window_after)
-
-
-prosjektstyring = driver.find_element(By.XPATH,"//*[text()='Prosjektstyring']")
-driver.execute_script("arguments[0].click();", prosjektstyring)
-
-#prosjektstyring.click()
-
-time.sleep(5)
-
-ny_rapport = driver.find_element(By.XPATH,"//*[text()='Opprett ny rapport']")
-ny_rapport.click()
-time.sleep(10)
-
-
-while(True) : 
-     try : 
-         element = driver.find_elements(By.XPATH, '//input[contains(@id, "u4_textfield-") and contains(@placeholder, "Søk")]')
-
-         break
-     except : 
-      pass
-  
-time.sleep(5)
-# element = driver.find_elements(By.XPATH, '//input[contains(@id, "u4_textfield-") and contains(@placeholder, "Søk")]')
-# wait = WebDriverWait(driver, 10)
-# wait.until(EC.element_to_be_selected(driver.find_elements(By.XPATH, '//input[contains(@id, "u4_textfield-") and contains(@placeholder, "Søk")]')))
-input_id = str(element[1].get_attribute('id'))
-time.sleep(1)
-input_id_space=driver.find_element(By.ID,input_id)
-time.sleep(1)
-input_id_space.send_keys('Arbeidsordre')
-time.sleep(2)
-action = ActionChains(driver)
-action.send_keys(Keys.ENTER)
-time.sleep(3)
-driver.find_element(By.XPATH, '//*[@class="u4-menu-search-result u4f-menu-search-enquiries-result"]').click()
-time.sleep(3)
-
-
-kriterium =driver.find_element(By.XPATH,"//*[text()='Legg til kriterium']")
-driver.execute_script("arguments[0].click();", kriterium)
-mer =driver.find_element(By.XPATH,"//span[text()='Mer...']")
-mer.click()
-
-
-item_tree_view_kostnadssted = driver.find_element(By.XPATH,"//tr[contains(@data-qtip,'Kostnadssted')]")
-checkbox_kostnadssted = driver.find_elements(By.XPATH,"//tr[contains(@data-qtip,'Kostnadssted')]//td[contains(@id,'ext-gen')]")
-checkbox_kostnadssted[1].click()
-
-
-
-ok_button = driver.find_element(By.XPATH,'//a[contains(@id, "u4_pagebutton-") and contains(@class, "x-btn u4-pagebutton u4-standard-button-small u4-standard-button-happy x-unselectable x-box-item x-btn-u4-standard-button-small x-noicon x-btn-noicon x-btn-u4-standard-button-small-noicon")]')
-ok_button.click()
-time.sleep(3)
+```python
 spaces_precis =driver.find_elements(By.XPATH,'//div[contains(@id, "u4_form-") and contains(@class,"x-box-target")]//div[contains(@id, "u4f_ib_attValueListCriterionView-")]//input[contains(@id, "u4_typeahead-") and contains(@class,"x-form-field x-form-text u4-form-field-input u4-form-field-trigger-input")]')
 space_precis_id = str(spaces_precis[4].get_attribute('id'))
 space_precis_id_select=driver.find_element(By.ID,space_precis_id)
-space_precis_id_select.send_keys('6425*')
-resultat =driver.find_element(By.XPATH,"//*[text()='Vis resultat']") 
-driver.execute_script("arguments[0].click();", resultat)
-time.sleep(5)
-button_add_column = driver.find_element(By.XPATH,'//div[contains(@class, "u4-tablecustomisation")]')
-button_add_column.click()
+space_precis_id_select.send_keys('********') '''6425*'''
+```
 
-
-item_tree_view_prosjektleder = driver.find_elements(By.XPATH,"//tr[contains(@data-qtip,'Prosjektleder')]")
-checkbox_prosjektleder = driver.find_elements(By.XPATH,"//tr[contains(@data-qtip,'Prosjektleder')]//td[contains(@id,'ext-gen')]")
-checkbox_prosjektleder[6].click()
-
-
-item_tree_view_kundenavn = driver.find_elements(By.XPATH,"//tr[contains(@data-qtip,'Kundenr')]")
-checkbox_kundenavn = driver.find_elements(By.XPATH,"//tr[contains(@data-qtip,'Kundenr')]//td[contains(@id,'ext-gen')]")
-checkbox_kundenavn[10].click()
-
-item_tree_view_project = driver.find_elements(By.XPATH,"//tr[contains(@data-qtip,'Prosjekt')]")
-checkbox_project = driver.find_elements(By.XPATH,"//tr[contains(@data-qtip,'Prosjekt')]//td[contains(@id,'ext-gen')]")
-time.sleep(5)
-driver.execute_script("arguments[0].click();", checkbox_project[27])
-
-item_tree_view_project_type = driver.find_elements(By.XPATH,"//tr[contains(@data-qtip,'Protype')]")
-checkbox_project_type = driver.find_elements(By.XPATH,"//tr[contains(@data-qtip,'Protype')]//td[contains(@id,'ext-gen')]")
-checkbox_project_type[2].click()
-
-
-
-
-ok_button2= driver.find_element(By.XPATH,'//a[contains(@id, "u4_pagebutton-") and contains(@class, "x-btn u4-pagebutton u4-standard-button-small u4-standard-button-happy x-unselectable x-btn-toolbar x-box-item x-toolbar-item x-btn-u4-standard-button-toolbar-small x-noicon x-btn-noicon x-btn-u4-standard-button-toolbar-small-noicon")]')
-ok_button2.click()
-time.sleep(5)
-resultat =driver.find_element(By.XPATH,"//*[text()='Vis resultat']") 
-driver.execute_script("arguments[0].click();", resultat)
-
-time.sleep(10)
-
-lagre =driver.find_element(By.XPATH,"//*[text()='Lagre']") 
-driver.execute_script("arguments[0].click();", lagre)
-time.sleep(2)
-
-navn = driver.find_element(By.XPATH,"//*[text()='Navn']")
-navn_id=str(navn.get_attribute('id'))
-label = navn_id.split('-label')[0]
-navn_file=str(label)+str('-inputEl')
-navn_file_space=driver.find_element(By.ID,navn_file)
+The user has to specified a name for the file he wants to download :
+```python
 navn_file_space.send_keys(str(today.strftime('%Y%m%d')))
-#navn_file_space.send_keys('test1005_2')
+```
 
-time.sleep(3)
+The user has also the possibility to rename the file:
 
-privat_folder = driver.find_element(By.XPATH,"//div[contains(@title,'Privat')]")
-privat_folder.click()
-
-lagre2 =driver.find_elements(By.XPATH,"//span[text()='Lagre']") 
-
-driver.execute_script("arguments[0].click();", lagre2[1])
-time.sleep(0)
-
-
-
-while(True) : 
-     try : 
-         ok3 = driver.find_element(By.XPATH,'//a[contains(@id, "u4_pagebutton-") and contains(@class,"x-btn u4-pagebutton u4-standard-button-small u4-standard-button-happy x-unselectable x-btn-u4-standard-button-small x-noicon x-btn-noicon x-btn-u4-standard-button-small-noicon")]')
-
-
-         break
-     except : 
-      pass
-  
-time.sleep(2)    
-
-# wait = WebDriverWait(driver, 10)
-# wait.until(EC.element_to_be_clickable(ok3))
-ok3.click()
-
-eksport = driver.find_element(By.XPATH,"//span[text()='Eksport']")
-driver.execute_script("arguments[0].click();", eksport)
-
-
-file_save = driver.find_element(By.XPATH,'//a[contains(@data-qtip,"Run Browser [.xlsx]")]')
-file_save.click()
-time.sleep(10)
-
+```python
 old_name = os.getcwd() + "\\" + str(today.strftime('%Y%m%d')) + "\\" + str(today.strftime('%Y%m%d')) + "_Browser.xlsx"
 print(old_name)
 new_name = os.getcwd() + "\\" + str(today.strftime('%Y%m%d')) + "\\" + str(today.strftime('%Y%m%d')) + "_list_project.xlsx"
 os.rename(old_name, new_name)
-
-cross = driver.find_element(By.XPATH,'//div[contains(@id,"reportengine_exportview") and contains(@class,"u4-floatingcontainer-background-close-icon")]')
-driver.close()
-driver.quit()
 ```
 
+## 2.  Create, for each project leader, a directory
+
+The list of employees is available from a Teams' channel.
+We import the list and store it in a database : 
+```python
+employees = pd.read_excel('C:\\Users\\candyd\\NTNU\\EPT HR og Økonomi - General\\Oversikter\\NY_Oversikt over ansatte og utlysninger.xlsx','Ansatte')
+```
+We also convert the list of projects (obtained from point 1) into a dataframe : 
+```python
+project = pd.read_excel(os.getcwd() + "\\" + str(today.strftime('%Y%m%d'))+ "\\" + str(today.strftime('%Y%m%d')) + '_list_project.xlsx','WORKORDERS')
+```
+For each project leader appearing in the list (Prosjekleder (T)) in the list we create, in the folder whose name is today's date, a directory named under the project leader. In these project leaders directories, we also copy a list of project belonging to them. This individual list of project is named like : **"name of the project leader"_project_overview.xlsx** :
+```python
+for a in project['Prosjektleder (T)'].unique():
+    isExist = os.path.exists(os.getcwd() + "\\" + str(today.strftime('%Y%m%d'))+ "\\"+ str(a))
+    if not isExist:
+        # Create a new directory because it does not exist
+        os.mkdir(os.getcwd() + "\\" + str(today.strftime('%Y%m%d'))+ "\\"+ str(a))
+        print("The new directory is created!")
+    else:
+        print('exist already')
 
 
+
+    pl = project.loc[project['Prosjektleder (T)']==a]
+    print(a,pl)
+    pl['Dato fra']= pl['Dato fra'].dt.floor('T')
+    pl['Dato til']= pl['Dato til'].dt.floor('T')
+
+    pl.to_excel(str(today.strftime('%Y%m%d'))+"/"+str(a) + '/'+ str(a)+'_project_overview.xlsx',index=False,encoding='utf-8-sig')
+```
+Then, from the list of projects, we create a new list (**six_digit_project_number**) containing all the 6 digit project numbers related project types **Bidrag** and **Oppdrag**. This list is then saved under **project_number_bidrag_oppdrag.csv** :
+```python
+for row in project.index:
+    if (project.loc[row,['Protype (T)']].to_string(header=False, index=False))=='Bidrag':
+        if not project.loc[row,['Prosjektnr.']].to_string(header=False, index=False) in six_digit_project_number:
+            six_digit_project_number.append(project.loc[row,['Prosjektnr.']].to_string(header=False, index=False))
+
+for row in project.index:
+    if (project.loc[row,['Protype (T)']].to_string(header=False, index=False))=='Oppdrag':
+        if not project.loc[row,['Prosjektnr.']].to_string(header=False, index=False) in six_digit_project_number:
+            six_digit_project_number.append(project.loc[row,['Prosjektnr.']].to_string(header=False, index=False))
+            
+df = pd.DataFrame(six_digit_project_number)
+
+df.to_csv(os.getcwd() + "\\" + str(today.strftime('%Y%m%d'))+ "\\" +'project_number_bidrag_oppdrag.csv',index=False)
+```
+
+Finally, from the list of employees, we create a file called "ansatte_'+ str(pl_folder[0])+'.xlsx'"
+
+## 3. Downloaf the excel sheets from unit4 (externally founding projects)
+
+From unit4, we download individual excel sheets containing the budget. 
+This is done using selenium.
+From point2, we have the list of project numbers.
+As we download an excel file form Unit4, a number is allocated to this file. This number having nothing to do with the project number, we need to keep track for this number and the project number.
+This is done simply by creating a new dataframe called **correspondance**, in which the 2 columns are named **project_number** and **file_number**:
+```python
+correspondance = pd.DataFrame(columns=['project_number','file_number'])
+```
+When all files are stored, we download from all the excel sheets at once from Unit4. These are stored in a .zip file which we rename
+```python
+for file in os.listdir(dir_path):
+    # check only zip files
+    if file.endswith('.zip'):
+        print(file)
+        old_name = dir_path + "\\" + file
+        print(old_name)
+        new_name = dir_path + "\\" + str(today.strftime('%Y%m%d')) + '.zip'
+        os.rename(old_name, new_name)
+```
+
+Then, we unzip this .zip file and store all excel sheets in a folder called **excel_project_sheets**
+Finally, knowing the correspondance between the project numbers and the file numbers, we can rename the excel sheets with the name of the correponding project.
+These excel sheets are finally stored in the right project leader repository
+
+
+## 4. Create budget files for each internally founded projects. 
 
