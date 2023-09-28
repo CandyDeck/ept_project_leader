@@ -58,8 +58,8 @@ button2.click()
 
 username=driver.find_element(By.ID,"username")
 password = driver.find_element(By.ID,"password")
-username.send_keys("candyd")
-password.send_keys("20SimGroup18")
+username.send_keys("***")
+password.send_keys("***")
 button3 = driver.find_element(By.XPATH,'/html/body/div/article/section[2]/div[1]/form[1]/button')
 button3.click()
 
